@@ -62,7 +62,7 @@
    "repositories": [
       {
          "type": "vcs",
-         "url":  "git@github.com:NetherGamesMC/BedrockProtocol.git"
+         "url":  "git@github.com:InfinityHCF/BedrockProtocol"
       },
       {
          "type": "vcs",
