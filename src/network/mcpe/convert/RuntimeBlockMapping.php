@@ -32,12 +32,12 @@ use pocketmine\network\mcpe\protocol\serializer\NetworkNbtSerializer;
 use pocketmine\network\mcpe\protocol\serializer\PacketSerializer;
 use pocketmine\network\mcpe\protocol\serializer\PacketSerializerContext;
 use pocketmine\player\Player;
+use pocketmine\utils\Filesystem;
 use pocketmine\utils\SingletonTrait;
 use pocketmine\utils\Utils;
 use Symfony\Component\Filesystem\Path;
 use function array_filter;
 use function array_keys;
-use function file_get_contents;
 use function in_array;
 
 /**
@@ -51,6 +51,10 @@ final class RuntimeBlockMapping{
 	private const PATHS = [
 		ProtocolInfo::CURRENT_PROTOCOL => [
 			self::CANONICAL_BLOCK_STATES_PATH => '',
+			self::R12_TO_CURRENT_BLOCK_MAP_PATH => '',
+		],
+		ProtocolInfo::PROTOCOL_1_19_50 => [
+			self::CANONICAL_BLOCK_STATES_PATH => '-1.19.50',
 			self::R12_TO_CURRENT_BLOCK_MAP_PATH => '',
 		],
 		ProtocolInfo::PROTOCOL_1_19_40 => [
@@ -147,7 +151,7 @@ final class RuntimeBlockMapping{
 
 		$canonicalBlockStatesFile = Path::join(\pocketmine\BEDROCK_DATA_PATH, "canonical_block_states" . self::PATHS[$mappingProtocol][self::CANONICAL_BLOCK_STATES_PATH] . ".nbt");
 		$stream = PacketSerializer::decoder(
-			Utils::assumeNotFalse(file_get_contents($canonicalBlockStatesFile), "Missing required resource file"),
+			Filesystem::fileGetContents($canonicalBlockStatesFile),
 			0,
 			new PacketSerializerContext(GlobalItemTypeDictionary::getInstance()->getDictionary(GlobalItemTypeDictionary::getDictionaryProtocol($mappingProtocol)))
 		);
@@ -162,7 +166,7 @@ final class RuntimeBlockMapping{
 	}
 
 	public static function getMappingProtocol(int $protocolId) : int{
-		if($protocolId < ProtocolInfo::PROTOCOL_1_19_40){
+		if($protocolId < ProtocolInfo::PROTOCOL_1_19_40 && $protocolId >= ProtocolInfo::PROTOCOL_1_19_0){
 			if($protocolId === ProtocolInfo::PROTOCOL_1_19_0){
 				return ProtocolInfo::PROTOCOL_1_19_10;
 			}
@@ -213,7 +217,7 @@ final class RuntimeBlockMapping{
 		/** @var R12ToCurrentBlockMapEntry[] $legacyStateMap */
 		$legacyStateMap = [];
 		$legacyStateMapReader = PacketSerializer::decoder(
-			Utils::assumeNotFalse(file_get_contents($r12ToCurrentBlockMapFile), "Missing required resource file"),
+			Filesystem::fileGetContents($r12ToCurrentBlockMapFile),
 			0,
 			new PacketSerializerContext(GlobalItemTypeDictionary::getInstance()->getDictionary(GlobalItemTypeDictionary::getDictionaryProtocol($mappingProtocol)))
 		);

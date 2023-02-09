@@ -28,12 +28,12 @@ use pocketmine\network\mcpe\protocol\serializer\ItemTypeDictionary;
 use pocketmine\network\mcpe\protocol\types\ItemTypeEntry;
 use pocketmine\player\Player;
 use pocketmine\utils\AssumptionFailedError;
+use pocketmine\utils\Filesystem;
 use pocketmine\utils\SingletonTrait;
 use pocketmine\utils\Utils;
 use Symfony\Component\Filesystem\Path;
 use function array_filter;
 use function array_keys;
-use function file_get_contents;
 use function is_array;
 use function is_bool;
 use function is_int;
@@ -48,6 +48,7 @@ final class GlobalItemTypeDictionary{
 
 	private const PATHS = [
 		ProtocolInfo::CURRENT_PROTOCOL => "",
+		ProtocolInfo::PROTOCOL_1_19_50 => "-1.19.50",
 		ProtocolInfo::PROTOCOL_1_19_40 => "-1.19.40",
 		ProtocolInfo::PROTOCOL_1_19_0 => "-1.19.0",
 		ProtocolInfo::PROTOCOL_1_18_30 => "-1.18.30",
@@ -79,7 +80,7 @@ final class GlobalItemTypeDictionary{
 		}
 
 		$path = self::PATHS[$dictionaryProtocol];
-		$data = Utils::assumeNotFalse(file_get_contents(Path::join(\pocketmine\BEDROCK_DATA_PATH, 'required_item_list' . $path . '.json')), "Missing required resource file");
+		$data = Filesystem::fileGetContents(Path::join(\pocketmine\BEDROCK_DATA_PATH, 'required_item_list' . $path . '.json'));
 		$table = json_decode($data, true);
 		if(!is_array($table)){
 			throw new AssumptionFailedError("Invalid item list format");
